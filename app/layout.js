@@ -14,8 +14,6 @@ export default function RootLayout({ children }) {
         <main className="flex-grow">
           {children}
         </main>
-        
-        {/* TODO: Import and add your Footer component here */}
       </body>
     </html>
   )
