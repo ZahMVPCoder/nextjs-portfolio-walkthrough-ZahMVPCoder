@@ -7,11 +7,12 @@ export default function Home() {
       <div className="max-w-4xl text-center">
         <div className="mb-8 flex justify-center">
           <Image 
-            src="https://ui-avatars.com/api/?name=Zahir&size=300&background=16a34a&color=fff&bold=true"
+            src="/download.png"
             alt="Zahir's profile photo"
             width={200}
             height={200}
             className="rounded-full shadow-xl"
+            priority // This will make the image load sooner for better LCP
           />
         </div>
         
@@ -19,10 +20,7 @@ export default function Home() {
           Hi, I'm Zahir!
         </h1>
         
-        <p className="text-xl text-gray-600 mb-8">
-          I'm a passionate youtuber that loves to make people laugh and web designer. I Code using Next.js and React. 
-          I love creating unique websites and making funny youtube videos in my spare time! I'm excited to share my journey and projects with you. 
-          Welcome to my portfolio!
+        <p className="text-xl text-gray-600 mb-8"> 
         </p>
 
         <div className="flex gap-4 justify-center mb-8">
