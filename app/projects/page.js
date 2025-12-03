@@ -6,8 +6,18 @@ import { useState, useEffect } from 'react'
 
 export default function Projects() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
+  const [mounted, setMounted] = useState(false)
+  const [stars] = useState(() => 
+    [...Array(80)].map(() => ({
+      size: Math.random() * 4 + 2,
+      left: Math.random() * 100,
+      top: Math.random() * 100,
+      delay: Math.random() * 3,
+    }))
+  )
 
   useEffect(() => {
+    setMounted(true)
     const handleMouseMove = (e) => {
       setMousePosition({ x: e.clientX, y: e.clientY })
     }
@@ -16,29 +26,54 @@ export default function Projects() {
   }, [])
 
   return (
-    <div className="min-h-screen p-8 bg-gradient-to-br from-amber-50 via-green-50 to-emerald-100 relative overflow-hidden">
+    <div 
+      className="min-h-screen pt-0 p-8 relative overflow-hidden"
+      style={{
+        background: 'linear-gradient(to bottom, #4c1d95 0%, #6ee7b7 50%, #2f5d48ff 100%)'
+      }}
+    >
       {/* Animated stars */}
-      {[...Array(30)].map((_, i) => {
-        const offsetX = (mousePosition.x / window.innerWidth) * 20 - 10
-        const offsetY = (mousePosition.y / window.innerHeight) * 20 - 10
+      {mounted && stars.map((star, i) => {
+        // Calculate distance from cursor to star
+        const starX = (star.left / 100) * (typeof window !== 'undefined' ? window.innerWidth : 1)
+        const starY = (star.top / 100) * (typeof window !== 'undefined' ? window.innerHeight : 1)
+        const distanceX = mousePosition.x - starX
+        const distanceY = mousePosition.y - starY
+        const distance = Math.sqrt(distanceX * distanceX + distanceY * distanceY)
+        
+        // Push stars away from cursor
+        const pushStrength = 100
+        const pushRadius = 150
+        let offsetX = 0
+        let offsetY = 0
+        
+        if (distance < pushRadius && distance > 0) {
+          const force = (pushRadius - distance) / pushRadius
+          offsetX = -(distanceX / distance) * force * pushStrength
+          offsetY = -(distanceY / distance) * force * pushStrength
+        }
+        
         return (
           <div
             key={i}
-            className="absolute rounded-full bg-yellow-300 opacity-70 animate-pulse"
+            className="absolute rounded-full pointer-events-none"
             style={{
-              width: Math.random() * 4 + 2 + 'px',
-              height: Math.random() * 4 + 2 + 'px',
-              left: Math.random() * 100 + '%',
-              top: Math.random() * 100 + '%',
-              transform: `translate(${offsetX * (i % 3 + 1)}px, ${offsetY * (i % 3 + 1)}px)`,
-              transition: 'transform 0.3s ease-out',
-              boxShadow: '0 0 10px rgba(253, 224, 71, 0.8)',
+              width: star.size + 'px',
+              height: star.size + 'px',
+              left: star.left + '%',
+              top: star.top + '%',
+              transform: `translate(${offsetX}px, ${offsetY}px)`,
+              transition: 'transform 0.2s ease-out',
+              background: '#FCD34D',
+              boxShadow: '0 0 10px rgba(252, 211, 77, 1.9), 0 0 15px rgba(252, 211, 77, 0.6)',
+              animation: `twinkle ${2 + (i % 3)}s ease-in-out infinite`,
+              animationDelay: `${star.delay}s`,
             }}
           />
         )
       })}
       
-      <div className="max-w-6xl mx-auto relative z-10">
+      <div className="max-w-6xl mx-auto relative z-10 pt-8">
         <div className="text-center mb-12">
           <h1 className="text-6xl font-extrabold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 drop-shadow-lg">
             My Projects

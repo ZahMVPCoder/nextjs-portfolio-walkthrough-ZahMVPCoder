@@ -1,9 +1,91 @@
+'use client'
+
 import Link from 'next/link'
+import { useState, useEffect } from 'react'
 
 export default function Contact() {
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
+  const [mounted, setMounted] = useState(false)
+  const [stars] = useState(() => 
+    [...Array(60)].map(() => ({
+      size: Math.random() * 4 + 2,
+      left: Math.random() * 100,
+      top: Math.random() * 100,
+      delay: Math.random() * 3,
+    }))
+  )
+
+  useEffect(() => {
+    setMounted(true)
+    const handleMouseMove = (e) => {
+      setMousePosition({ x: e.clientX, y: e.clientY })
+    }
+    window.addEventListener('mousemove', handleMouseMove)
+    return () => window.removeEventListener('mousemove', handleMouseMove)
+  }, [])
+
   return (
-    <div className="min-h-screen p-8 bg-gradient-to-b from-gray-50 to-green-50">
-      <div className="max-w-4xl mx-auto">
+    <div 
+      className="min-h-screen pt-0 p-8 relative overflow-hidden"
+      style={{
+        background: 'linear-gradient(to bottom, #fb923c 0%, #fdba74 40%, #6ee7b7 100%)'
+      }}
+    >
+      {/* Sun in top left corner */}
+      <div 
+        className="absolute pointer-events-none"
+        style={{
+          top: '40px',
+          left: '40px',
+          width: '120px',
+          height: '120px',
+          borderRadius: '50%',
+          background: 'radial-gradient(circle, #fef3c7 0%, #fcd34d 50%, #fb923c 100%)',
+          boxShadow: '0 0 60px rgba(251, 146, 60, 0.8), 0 0 100px rgba(252, 211, 77, 0.5)',
+          animation: 'pulse 4s ease-in-out infinite',
+        }}
+      />
+
+      {/* Animated stars */}
+      {mounted && stars.map((star, i) => {
+        const starX = (star.left / 100) * (typeof window !== 'undefined' ? window.innerWidth : 1)
+        const starY = (star.top / 100) * (typeof window !== 'undefined' ? window.innerHeight : 1)
+        const distanceX = mousePosition.x - starX
+        const distanceY = mousePosition.y - starY
+        const distance = Math.sqrt(distanceX * distanceX + distanceY * distanceY)
+        
+        const pushStrength = 100
+        const pushRadius = 150
+        let offsetX = 0
+        let offsetY = 0
+        
+        if (distance < pushRadius && distance > 0) {
+          const force = (pushRadius - distance) / pushRadius
+          offsetX = -(distanceX / distance) * force * pushStrength
+          offsetY = -(distanceY / distance) * force * pushStrength
+        }
+        
+        return (
+          <div
+            key={i}
+            className="absolute rounded-full pointer-events-none"
+            style={{
+              width: star.size + 'px',
+              height: star.size + 'px',
+              left: star.left + '%',
+              top: star.top + '%',
+              transform: `translate(${offsetX}px, ${offsetY}px)`,
+              transition: 'transform 0.2s ease-out',
+              background: '#FCD34D',
+              boxShadow: '0 0 10px rgba(252, 211, 77, 0.9), 0 0 15px rgba(252, 211, 77, 0.6)',
+              animation: `twinkle ${2 + (i % 3)}s ease-in-out infinite`,
+              animationDelay: `${star.delay}s`,
+            }}
+          />
+        )
+      })}
+
+      <div className="max-w-4xl mx-auto relative z-10 pt-8">
         <h1 className="text-5xl font-bold mb-4 text-gray-900">Get In Touch</h1>
         <p className="text-xl text-gray-600 mb-12">
           I'd love to hear from you! Feel free to reach out through any of these channels.
